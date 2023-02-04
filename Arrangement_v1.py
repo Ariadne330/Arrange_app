@@ -329,13 +329,13 @@ def generate_card():
 ###########################
 
 st.set_page_config(page_title="工序编排页面", layout="wide")
-hide_streamlit_style = """
-            <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            </style>
-            """
-st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+# hide_streamlit_style = """
+#             <style>
+#             #MainMenu {visibility: hidden;}
+#             footer {visibility: hidden;}
+#             </style>
+#             """
+# st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
 
 app = Multi_Page()
 app.add_app('文件上传', get_identify_res)
