@@ -33,6 +33,7 @@ if "visibility" not in st.session_state:
   st.session_state.card_df = None
   st.session_state.knife_df = init_knife_df
   st.session_state.knife_add = pd.DataFrame(data = [[*['待输入']*3, *['0']*3]], columns = knife_columns)
+  st.session_state.method_add = pd.DataFrame(columns = method_columns)
   st.session_state.method_df = init_method_df
   st.session_state.det_df = init_det_df
   st.session_state.knife_paras = [0]*6
@@ -77,12 +78,20 @@ class Multi_Page:
           '''
         )
 
+        st.sidebar.header('开发版本')
+        c1, c2 = st.sidebar.columns(2)
+        with c1:
+            st.write('💻 当前版本：**v1.0**')
+        with c2:
+            # st.write('💡 开发主页: [Ariadne330](https://github.com/Ariadne330/Arrange_app)')
+            pass
+        st.sidebar.write("更多内容仍在开发中... ⌛")
         # st.sidebar.toggle('test')
 
 
 
 ###########################
-# utils函数
+# 一些utils函数
 ###########################
 
 @st.cache()
@@ -115,18 +124,22 @@ def update_info_to_card():
             st.session_state.method_df.loc[(st.session_state.method_df[match_attr] == name_), method_columns[1:]].copy().values.tolist()
 
 def update_knife_df():
-    check_cols = ['主轴转速(rpm)', '切削速度(m/min)', '进给量(m/min)']
-    for col_name in check_cols:
-      if not isNumber(st.session_state.knife_add[col_name].to_numpy()[0]):
-        st.warning(f'当前{col_name}列输入格式不正确，无法更新刀具参数！')
-        break
+    # check_cols = ['主轴转速(rpm)', '切削速度(m/min)', '进给量(m/min)']
+    # for col_name in check_cols:
+    #   if not isNumber(st.session_state.knife_add[col_name].to_numpy()[0]):
+    #     st.warning(f'当前{col_name}列输入格式不正确，无法更新刀具参数！')
+    #     break
     
-    if isNumber(st.session_state.knife_add[col_name].to_numpy()[0]):
-      st.session_state.knife_df = pd.concat([st.session_state.knife_df, st.session_state.knife_add],  ignore_index = True)
+    # if isNumber(st.session_state.knife_add[col_name].to_numpy()[0]):
+    #   st.session_state.knife_df = pd.concat([st.session_state.knife_df, st.session_state.knife_add],  ignore_index = True)
+    st.session_state.knife_df = pd.concat([st.session_state.knife_df, st.session_state.knife_add],  ignore_index = True)
+
+def update_method_df():
+    st.session_state.method_df = pd.concat([st.session_state.method_df, st.session_state.method_add],  ignore_index = True)
 
 
 ###########################
-# app函数，后续可并入不同py文件函数集
+# app函数
 ###########################
 
 def get_knife_lib():
@@ -149,21 +162,56 @@ def get_knife_lib():
     
     st.markdown('#### 添加刀具')
     st.markdown('如需添加刀具，请**完整**填写刀具信息')
-    gb_add = GridOptionsBuilder.from_dataframe(st.session_state.knife_add)
-    gb.configure_pagination()
-    gb_add.configure_default_column(groupable=True, value=True, enableRowGroup=True, aggFunc="sum", editable=True)
-    go_add = gb_add.build()
-    ag_add = AgGrid(
-            st.session_state.knife_add, 
-            gridOptions=go_add, 
-            height=100, 
-            # theme = 'dark',
-            enable_enterprise_modules = True,
-            data_return_mode=DataReturnMode.FILTERED,
-            fit_columns_on_grid_load=True,   #列过少的时候，设置True。 列过多的时候就不用设置了
-            reload_data=False
+
+    col_num, col_name ,col_format= st.columns(3)
+    with col_num:
+        knife_number = st.text_input(
+          '请输入刀号',
+          '待输入'
         )
-    st.session_state.knife_add = ag_add['data']
+    
+    with col_name:
+        knife_name = st.text_input(
+            "请输入刀具名称",
+            '待输入'
+        )
+
+    with col_format:
+          knife_format = st.text_input(
+              "请输入刀具规格/标准",
+              '待输入'
+          )
+    
+    col_1, col_2,col_3 = st.columns(3)
+    with col_1:
+        main_speed = st.number_input('主轴转速(rpm)',
+                                  value = int(0),
+                                  step = 100)
+    with col_2:
+        cut_speed = st.number_input('切削速度(m/min)',
+                                  value = int(0),
+                                  step = 3) 
+    with col_3:
+        feed_rate = st.number_input('进给量(m/min)',
+                                  value = int(0),
+                                  step = 20) 
+
+    st.session_state.knife_add = pd.DataFrame(data = [[ knife_number,  knife_name, knife_format, main_speed, cut_speed ,feed_rate]], columns = knife_columns)
+    # gb_add = GridOptionsBuilder.from_dataframe(st.session_state.knife_add)
+    # gb.configure_pagination()
+    # gb_add.configure_default_column(groupable=True, value=True, enableRowGroup=True, aggFunc="sum", editable=True)
+    # go_add = gb_add.build()
+    # ag_add = AgGrid(
+    #         st.session_state.knife_add, 
+    #         gridOptions=go_add, 
+    #         height=100, 
+    #         # theme = 'dark',
+    #         enable_enterprise_modules = True,
+    #         data_return_mode=DataReturnMode.FILTERED,
+    #         fit_columns_on_grid_load=True,   #列过少的时候，设置True。 列过多的时候就不用设置了
+    #         reload_data=False
+    #     )
+    # st.session_state.knife_add = ag_add['data']
     st.button('确认添加', on_click = update_knife_df)
 
 def get_method_lib():
@@ -182,6 +230,51 @@ def get_method_lib():
             fit_columns_on_grid_load=True,   #列过少的时候，设置True。 列过多的时候就不用设置了
             reload_data=False
         )
+
+    st.markdown('#### 添加方法')
+
+    col_name, col_method ,col_tech= st.columns(3)
+    with col_name:
+        method_name = st.text_input(
+          '请输入管理特性项目',
+          '待输入'
+        )
+    
+    with col_method:
+        method_multi = st.multiselect(
+            "请选择保证方法",
+            ['刀具', '机床', '测量'],
+            ['刀具', '机床', '测量']
+        )
+    intable_multi = '/'.join(method_multi)
+    
+    with col_tech:
+        method_tech = st.text_input(
+            "请输入评价/测量技术",
+            '待输入'
+        )
+    
+    col_1, col_2,col_3 = st.columns(3)
+    with col_1:
+        method_number = st.text_input('请输入规格代号',
+                                  '待输入')
+    with col_2:
+        method_capa = st.selectbox(
+            "请选择样本容量",
+            st.session_state.method_df['样本容量'].dropna().unique(),
+            label_visibility=st.session_state.visibility,
+            disabled=st.session_state.disabled,
+        )
+    with col_3:
+        method_freq = st.selectbox(
+            "请选择样本频率",
+            st.session_state.method_df['样本频率'].dropna().unique(),
+            label_visibility=st.session_state.visibility,
+            disabled=st.session_state.disabled,
+        )
+
+    st.session_state.method_add = pd.DataFrame(data = [[ method_name,  intable_multi, method_tech, method_number, method_capa ,method_freq]], columns = method_columns)
+    st.button('确认添加', on_click = update_method_df)
 
 def get_identify_res():
   st.title('文件上传')
