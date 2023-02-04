@@ -29,7 +29,7 @@ if "visibility" not in st.session_state:
   st.session_state.visibility = "visible"
   st.session_state.disabled = False
   # 一些callback变量
-  st.session_state.selected_idx = None
+  st.session_state.selected_idx = 0
   st.session_state.card_df = None
   st.session_state.knife_df = init_knife_df
   st.session_state.knife_add = pd.DataFrame(data = [[*['待输入']*3, *['0']*3]], columns = knife_columns)
