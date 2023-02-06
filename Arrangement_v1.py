@@ -214,6 +214,19 @@ def get_knife_lib():
     # st.session_state.knife_add = ag_add['data']
     st.button('确认添加', on_click = update_knife_df)
 
+    
+    st.markdown('#### 下载更新后的刀具库')
+
+    csv = convert_df(ag['data'])
+
+    st.download_button(
+        label="以csv格式下载",
+        data=csv,
+        file_name='knife_library.csv',
+        # mime='text/csv',
+    )
+
+
 def get_method_lib():
     st.title('方法库')
     gb = GridOptionsBuilder.from_dataframe(st.session_state.method_df)
@@ -275,6 +288,18 @@ def get_method_lib():
 
     st.session_state.method_add = pd.DataFrame(data = [[ method_name,  intable_multi, method_tech, method_number, method_capa ,method_freq]], columns = method_columns)
     st.button('确认添加', on_click = update_method_df)
+
+
+    st.markdown('#### 下载更新后的方法库')
+
+    csv = convert_df(ag['data'])
+
+    st.download_button(
+        label="以csv格式下载",
+        data=csv,
+        file_name='method_library.csv',
+        # mime='text/csv',
+    )
 
 def get_identify_res():
   st.title('文件上传')
